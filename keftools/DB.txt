@@ -1,0 +1,7 @@
+http://kefgis.alwaysdata.net
+
+PostgreSQL host: postgresql-kefgis.alwaysdata.net
+
+DB:	kefgis_city
+
+USER name: kefgis

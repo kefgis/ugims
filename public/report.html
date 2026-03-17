@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report an Issue</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        #map { height: 300px; margin-bottom: 20px; }
+        form { display: grid; gap: 15px; }
+        label { font-weight: bold; }
+        input, select, textarea { padding: 8px; width: 100%; }
+        button { padding: 10px; background: #2ecc71; color: white; border: none; cursor: pointer; }
+        .current-location { background: #3498db; color: white; padding: 10px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Report an Issue</h1>
+        <div id="map"></div>
+        <div class="current-location" id="locationStatus">
+            📍 Click on map to set location or use current location
+        </div>
+        
+        <form id="reportForm" enctype="multipart/form-data">
+            <input type="hidden" id="latitude" name="latitude" required>
+            <input type="hidden" id="longitude" name="longitude" required>
+            
+            <label>Issue Type</label>
+            <select name="type_id" required>
+                <option value="1">Broken Bench</option>
+                <option value="2">Damaged Play Equipment</option>
+                <option value="3">Overgrown Vegetation</option>
+                <option value="4">Fallen Tree/Branch</option>
+                <option value="5">Broken Light</option>
+                <option value="6">Trash Overflow</option>
+            </select>
+            
+            <label>Description</label>
+            <textarea name="description" rows="4" required></textarea>
+            
+            <label>Location Description</label>
+            <input type="text" name="location_description" placeholder="Near the entrance, behind the bench, etc.">
+            
+            <label>Photo (optional)</label>
+            <input type="file" name="photo" accept="image/*">
+            
+            <label>Your Name (optional)</label>
+            <input type="text" name="name">
+            
+            <label>Email (for updates)</label>
+            <input type="email" name="email">
+            
+            <label>
+                <input type="checkbox" name="anonymous" value="1"> Report anonymously
+            </label>
+            
+            <button type="submit">Submit Report</button>
+        </form>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        var map = L.map('map').setView([9.03, 38.74], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        
+        var marker;
+        
+        // Click on map to set location
+        map.on('click', function(e) {
+            setLocation(e.latlng.lat, e.latlng.lng);
+        });
+        
+        // Get current location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                var lat = pos.coords.latitude;
+                var lng = pos.coords.longitude;
+                setLocation(lat, lng);
+                map.setView([lat, lng], 15);
+            });
+        }
+        
+        function setLocation(lat, lng) {
+            $('#latitude').val(lat);
+            $('#longitude').val(lng);
+            
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng]).addTo(map);
+            }
+            
+            $('#locationStatus').text('📍 Location set: ' + lat.toFixed(4) + ', ' + lng.toFixed(4));
+        }
+        
+        // Handle form submission
+        $('#reportForm').submit(function(e) {
+            e.preventDefault();
+            
+            var formData = new FormData(this);
+            
+            $.ajax({
+                url: '/ugims/api/endpoints/submit_report.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    alert('Report submitted successfully!');
+                    window.location.href = '/ugims/public/index.html';
+                },
+                error: function(xhr) {
+                    alert('Error: ' + xhr.responseText);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

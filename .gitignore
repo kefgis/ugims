@@ -1,0 +1,22 @@
+# OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# Environment files
+.env
+*.local
+api/config/database.php
+
+# Uploaded files
+uploads/
+temp/
+
+# Composer
+/vendor/
+composer.lock

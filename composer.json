@@ -1,0 +1,6 @@
+{
+    "require": {
+        "phayes/geophp": "^1.2",
+        "phpmyadmin/shapefile": "^3.1"
+    }
+}

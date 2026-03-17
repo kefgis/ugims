@@ -1,0 +1,4 @@
+-- This creates a simple MD5 hash (less secure but works temporarily)
+UPDATE ugims_users 
+SET password_hash = md5('admin123') 
+WHERE username = 'admin';

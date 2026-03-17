@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UGIMS - Public Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/ugims/assets/css/style.css">
+</head>
+<body>
+    <h1>Urban Green Infrastructure Map</h1>
+    <div id="map"></div>
+    <div style="text-align: center; margin: 20px;">
+    <a href="public/track_report.php" style="background: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Track Your Report</a>
+    </div>
+    <div class="info-panel" id="infoPanel">
+        <h3>UGI Information</h3>
+        <p>Click on any green space to see details</p>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        // Initialize map centered on Addis Ababa
+        var map = L.map('map').setView([9.03, 38.74], 12);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Fetch and display UGI data
+        function loadUGIData() {
+            $.ajax({
+                url: '/ugims/api/endpoints/get_ugi.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    L.geoJSON(data, {
+                        style: function(feature) {
+                            // Style based on UGI type or condition
+                            var type = feature.properties.type_id;
+                            return {
+                                fillColor: type == 1 ? '#2ecc71' : '#3498db',
+                                color: '#000',
+                                weight: 1,
+                                fillOpacity: 0.5
+                            };
+                        },
+                        onEachFeature: function(feature, layer) {
+                            layer.on('click', function() {
+                                showUGIDetails(feature);
+                            });
+                        }
+                    }).addTo(map);
+                },
+                error: function(xhr) {
+                    console.error('Failed to load UGI data', xhr);
+                }
+            });
+        }
+
+        function showUGIDetails(feature) {
+            var props = feature.properties;
+            var html = '<h3>' + props.name + '</h3>' +
+                      '<p>Area: ' + props.area + ' m²</p>' +
+                      '<p>Condition: ' + props.condition + '</p>';
+            $('#infoPanel').html(html);
+        }
+
+        loadUGIData();
+
+        // Report issue button
+        var reportButton = L.control({position: 'bottomright'});
+        reportButton.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'info report-btn');
+                div.innerHTML = `
+                <button 
+                    onclick="location.href='/ugims/public/report.html'" 
+                    style="padding:10px;background:#e74c3c;color:white;border:none;border-radius:5px;cursor:pointer">
+                    📢 Report Issue
+                </button>`;
+                return div;
+        };
+        reportButton.addTo(map);
+    </script>
+</body>
+</html>
