@@ -1,0 +1,11 @@
+.git
+.gitignore
+README.md
+.vscode/
+docker-compose.yml
+.DS_Store
+tests/
+docs/
+*.sql
+*.dump
+node_modules/
