@@ -9,14 +9,23 @@ RUN apt-get update && apt-get install -y \
 # Enable Apache mod_rewrite for URL rewriting
 RUN a2enmod rewrite
 
-# Set the working directory inside the container
+# Set the working directory
 WORKDIR /var/www/html
 
-# Copy all files from your current directory to the working directory
+# Copy all files
 COPY . .
 
-# Expose port 80 for the web server
+# Create database.php from template (if template exists)
+RUN if [ -f api/config/database.template.php ]; then \
+    cp api/config/database.template.php api/config/database.php; \
+    fi
+
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+# Expose port 80
 EXPOSE 80
 
-# Start Apache in the foreground
+# Start Apache
 CMD ["apache2-foreground"]

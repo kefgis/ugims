@@ -20,3 +20,8 @@ temp/
 # Composer
 /vendor/
 composer.lock
+
+
+# Database configuration
+api/config/database.php
+!api/config/database.template.php
